@@ -37,3 +37,19 @@ func (q *Queries) CreateDefinition(ctx context.Context, arg CreateDefinitionPara
 	)
 	return i, err
 }
+
+const definitionExists = `-- name: DefinitionExists :one
+SELECT EXISTS(SELECT 1 FROM definitions WHERE word_id=$1 AND pos_id=$2)
+`
+
+type DefinitionExistsParams struct {
+	WordID int32
+	PosID  int32
+}
+
+func (q *Queries) DefinitionExists(ctx context.Context, arg DefinitionExistsParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, definitionExists, arg.WordID, arg.PosID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}

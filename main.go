@@ -1,21 +1,29 @@
 package main
 
 import (
+	"database/sql"
 	"log"
+	"os"
+
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
+	"github.com/pbojar/dictextract/internal/database"
+	"github.com/pbojar/dictextract/internal/wiktionary"
 )
 
 func main() {
-	// wiktionENURL := "https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz"
 
-	gzFilepath := "/tmp/dict-949316240"
+	godotenv.Load()
+	dbURL := os.Getenv("DB_URL")
+	gzFilepath := os.Getenv("RAW_DICT_PATH")
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	// gzFilepath, err := downloadDictionary(wiktionENURL)
-	// if err != nil {
-	// 	log.Fatalf("Error downloading dictionary: %v", err)
-	// }
-	// fmt.Println(gzFilepath)
+	dbQueries := database.New(db)
 
-	err := extractValidWords(gzFilepath)
+	err = wiktionary.ExtractToDB(gzFilepath, dbQueries)
 	if err != nil {
 		log.Fatalf("Error extracting and building EN dictionary: %v", err)
 	}

@@ -7,3 +7,6 @@ VALUES (
     $3
 )
 RETURNING *;
+
+-- name: DefinitionExists :one
+SELECT EXISTS(SELECT 1 FROM definitions WHERE word_id=$1 AND pos_id=$2);

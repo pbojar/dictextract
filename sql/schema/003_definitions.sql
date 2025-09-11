@@ -1,6 +1,6 @@
 -- +goose Up
 CREATE TABLE definitions(
-    id SERIAL PRIMARY KEY,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     word_id SERIAL NOT NULL,
     CONSTRAINT fk_word_id
     FOREIGN KEY (word_id)

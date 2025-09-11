@@ -1,6 +1,6 @@
 -- +goose Up
 CREATE TABLE words(
-    id SERIAL PRIMARY KEY,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     word TEXT UNIQUE NOT NULL,
     CONSTRAINT no_whitespace CHECK (word !~ '\s')
 );

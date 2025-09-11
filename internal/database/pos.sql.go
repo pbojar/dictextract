@@ -24,3 +24,14 @@ func (q *Queries) CreatePos(ctx context.Context, pos string) (PartsOfSpeech, err
 	err := row.Scan(&i.ID, &i.Pos)
 	return i, err
 }
+
+const getIDByPos = `-- name: GetIDByPos :one
+SELECT id FROM parts_of_speech WHERE pos=$1
+`
+
+func (q *Queries) GetIDByPos(ctx context.Context, pos string) (int32, error) {
+	row := q.db.QueryRowContext(ctx, getIDByPos, pos)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}

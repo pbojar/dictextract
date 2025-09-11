@@ -5,3 +5,6 @@ VALUES (
     $1
 ) 
 RETURNING *;
+
+-- name: GetIDByPos :one
+SELECT id FROM parts_of_speech WHERE pos=$1;

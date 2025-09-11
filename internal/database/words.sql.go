@@ -24,3 +24,14 @@ func (q *Queries) CreateWord(ctx context.Context, word string) (Word, error) {
 	err := row.Scan(&i.ID, &i.Word)
 	return i, err
 }
+
+const getIDByWord = `-- name: GetIDByWord :one
+SELECT id FROM words WHERE word=$1
+`
+
+func (q *Queries) GetIDByWord(ctx context.Context, word string) (int32, error) {
+	row := q.db.QueryRowContext(ctx, getIDByWord, word)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
