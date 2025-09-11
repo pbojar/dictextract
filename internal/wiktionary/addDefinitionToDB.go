@@ -4,24 +4,29 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 
 	"github.com/pbojar/dictextract/internal/database"
 )
 
-func addDefinitionToDB(word, pos, def string, dbQueries *database.Queries) (err error) {
+func addDefinitionToDB(word, pos, def string, dbQueries *database.Queries) (added bool, err error) {
+
+	// Ensure word and pos are lowercase
+	word = strings.ToLower(word)
+	pos = strings.ToLower(pos)
 
 	// Attempt to find existing entry in words
 	wordID, err := dbQueries.GetIDByWord(context.Background(), word)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
-			return err
+			return false, err
 		}
 	}
 	// Add word if not found
 	if wordID == 0 {
 		dbWord, err := dbQueries.CreateWord(context.Background(), word)
 		if err != nil {
-			return err
+			return false, err
 		}
 		wordID = dbWord.ID
 	}
@@ -30,14 +35,14 @@ func addDefinitionToDB(word, pos, def string, dbQueries *database.Queries) (err 
 	posID, err := dbQueries.GetIDByPos(context.Background(), pos)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
-			return err
+			return false, err
 		}
 	}
 	// Add pos if not found
 	if posID == 0 {
 		dbPos, err := dbQueries.CreatePos(context.Background(), pos)
 		if err != nil {
-			return err
+			return false, err
 		}
 		posID = dbPos.ID
 	}
@@ -48,10 +53,10 @@ func addDefinitionToDB(word, pos, def string, dbQueries *database.Queries) (err 
 		PosID:  posID,
 	})
 	if err != nil {
-		return err
+		return false, err
 	}
 	if defExists {
-		return nil
+		return false, nil
 	}
 
 	// Add definition
@@ -61,7 +66,7 @@ func addDefinitionToDB(word, pos, def string, dbQueries *database.Queries) (err 
 		Definition: def,
 	})
 	if err != nil {
-		return err
+		return false, err
 	}
-	return nil
+	return true, nil
 }

@@ -30,6 +30,7 @@ func ExtractToDB(gzFilepath string, dbQueries *database.Queries) (err error) {
 	// Use buffered scanner to read line by line
 	numAdded := 0
 	numFiltered := 0
+	numDupes := 0
 	scanner := bufio.NewScanner(gzReader)
 	const maxCapacity int = 1 << 24 // Lines in the EN wiktionary are very long
 	buf := make([]byte, maxCapacity)
@@ -49,15 +50,19 @@ func ExtractToDB(gzFilepath string, dbQueries *database.Queries) (err error) {
 			continue
 		}
 
-		err = addDefinitionToDB(
+		added, err := addDefinitionToDB(
 			entry.Word, entry.Pos, entry.Senses[0].Glosses[0],
 			dbQueries,
 		)
 		if err != nil {
 			return err
 		}
-		numAdded++
-		fmt.Printf("\033[2K\rDefinitions (added, filtered): (%d, %d)", numAdded, numFiltered)
+		if added {
+			numAdded++
+		} else {
+			numDupes++
+		}
+		fmt.Printf("\033[2K\rDefinitions (added, filtered, dupes): (%d, %d, %d)", numAdded, numFiltered, numDupes)
 
 	}
 	fmt.Printf("\nExtract and add complete!\n")
