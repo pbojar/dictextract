@@ -1,6 +1,7 @@
 package dawg
 
 import (
+	"os"
 	"sort"
 	"testing"
 )
@@ -294,5 +295,57 @@ func TestDAWGStartsWith(t *testing.T) {
 				t.Errorf("dawg.StartsWith(%s) returned %t, expected %t", tt.prefix, result, tt.expected)
 			}
 		})
+	}
+}
+
+func TestSaveAsAndLoadFromGob(t *testing.T) {
+	// Build DAWG
+	testWords := []string{
+		"cat",
+		"car",
+		"cats",
+		"catch",
+		"cache",
+		"dog",
+		"dogs",
+		"doggy",
+	}
+	sort.Strings(testWords)
+	builder := NewDAWGBuilder()
+	for _, w := range testWords {
+		err := builder.Insert(w)
+		// Catch unwanted errors from Insert loop
+		if err != nil {
+			t.Errorf("DAWGBuilder.Insert() error = %v", err)
+			return
+		}
+	}
+	dawg := builder.Finish()
+
+	// Create temporary file
+	tF, err := os.CreateTemp("", "testDawg.gob")
+	if err != nil {
+		t.Errorf("error creating temporary file: %v", err)
+	}
+	dawgFilePath := tF.Name()
+	defer os.Remove(dawgFilePath)
+
+	// Save DAWG as gob to temporary file
+	err = dawg.SaveAsGob(dawgFilePath)
+	if err != nil {
+		t.Errorf("error saving as gob: %v", err)
+	}
+
+	// Load DAWG from gob
+	loadedDAWG, err := LoadDAWGFromGob(dawgFilePath)
+	if err != nil {
+		t.Errorf("error loading DAWG from gob: %v", err)
+	}
+
+	// Test lookups
+	for _, word := range testWords {
+		if !loadedDAWG.Contains(word) {
+			t.Errorf("'%s' not found in loadedDAWG", word)
+		}
 	}
 }
