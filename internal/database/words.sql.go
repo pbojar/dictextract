@@ -35,3 +35,35 @@ func (q *Queries) GetIDByWord(ctx context.Context, word string) (int32, error) {
 	err := row.Scan(&id)
 	return id, err
 }
+
+const getWordsWithLenInRangeSorted = `-- name: GetWordsWithLenInRangeSorted :many
+SELECT word FROM words WHERE CHAR_LENGTH(word) BETWEEN $1 AND $2 ORDER BY word ASC
+`
+
+type GetWordsWithLenInRangeSortedParams struct {
+	Minlen string
+	Maxlen string
+}
+
+func (q *Queries) GetWordsWithLenInRangeSorted(ctx context.Context, arg GetWordsWithLenInRangeSortedParams) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getWordsWithLenInRangeSorted, arg.Minlen, arg.Maxlen)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var word string
+		if err := rows.Scan(&word); err != nil {
+			return nil, err
+		}
+		items = append(items, word)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
