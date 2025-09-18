@@ -11,6 +11,8 @@ import (
 	"github.com/pbojar/dictextract/internal/database"
 )
 
+// ExtractToDB decompresses gzFilepath line-by-line and attempts to parse each line as a json following the wiktionLite
+// structure. Entries are then filtered and the first definition for the word, pos pair is added to the database.
 func ExtractToDB(gzFilepath string, dbQueries *database.Queries) (err error) {
 
 	// Open compressed file for reading

@@ -9,6 +9,9 @@ import (
 	"github.com/pbojar/dictextract/internal/database"
 )
 
+// addDefinitionToDB adds a definition (def) to the "definitions" table for a given word and part of speech (pos) pair.
+// Creates the associated entries for word and pos in the "words" and "parts_of_speech" tables respectively if existing
+// entries are not found. Returns without error if a definition for the word, pos pair already exists.
 func addDefinitionToDB(word, pos, def string, dbQueries *database.Queries) (added bool, err error) {
 
 	// Ensure word and pos are lowercase

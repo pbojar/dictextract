@@ -21,6 +21,8 @@ var engCAPSRange = &unicode.RangeTable{
 	},
 }
 
+// isEngAlphaOnly returns true if all runes in the string are in engAlphaRange (A-Z and a-z).
+// unicode.RangeTable is used here in hopes of supporting runes with accents for other languages.
 func isEnAlphaOnly(s string) bool {
 	for _, r := range s {
 		if !unicode.IsOneOf([]*unicode.RangeTable{engAlphaRange}, r) {
