@@ -22,17 +22,17 @@ func makeCommands() map[string]cliCommand {
 	commands := map[string]cliCommand{
 		"help": {
 			name:        "help",
-			description: "Displays help message",
+			description: "Displays help message.",
 			callback:    commandHelp,
 		},
 		"lsRaws": {
 			name:        "lsRaws",
-			description: "Lists saved raw files",
+			description: "Lists saved raw files.",
 			callback:    commandListRaws,
 		},
 		"lsDAWGs": {
 			name:        "lsDAWGs",
-			description: "Lists saved DAWGs",
+			description: "Lists saved DAWGs.",
 			callback:    commandListDAWGs,
 		},
 		"makeDB": {
